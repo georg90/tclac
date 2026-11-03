@@ -27,6 +27,20 @@ climate:
   - platform: tclac
     id: tclac_test_climate
     name: TCL AC Test
+    turbo_sensor:
+      name: TCL AC Test Turbo
+    compressor_running:
+      name: TCL AC Test Compressor
+    evaporator_temperature:
+      name: TCL AC Test Evaporator Temperature
+    compressor_temperature:
+      name: TCL AC Test Compressor Temperature
+    compressor_frequency:
+      name: TCL AC Test Compressor Frequency
+    supply_voltage:
+      name: TCL AC Test Supply Voltage
+    diagnostic_hex:
+      name: TCL AC Test Diagnostic Data
 
 # Aktionen in Triggern mit Argumenten (prüft die play()-Signatur in automation.h)
 select:

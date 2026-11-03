@@ -318,3 +318,27 @@ climate:
   - platform: tclac
     name: "${device_name} Climate"
     id: ${device_name}climate
+    turbo_sensor:
+      name: "${humanly_name} Turbo"
+    compressor_running:
+      name: "${humanly_name} Kompressor"
+    evaporator_temperature:
+      name: "${humanly_name} Verdampfertemperatur"
+      disabled_by_default: true
+      entity_category: diagnostic
+    compressor_temperature:
+      name: "${humanly_name} Kompressortemperatur"
+      disabled_by_default: true
+      entity_category: diagnostic
+    compressor_frequency:
+      name: "${humanly_name} Kompressorfrequenz"
+      disabled_by_default: true
+      entity_category: diagnostic
+    supply_voltage:
+      name: "${humanly_name} Netzspannung"
+      disabled_by_default: true
+      entity_category: diagnostic
+    diagnostic_hex:
+      name: "${humanly_name} Diagnose-Bytes (34-59)"
+      disabled_by_default: true
+      entity_category: diagnostic

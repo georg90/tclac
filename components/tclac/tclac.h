@@ -14,11 +14,15 @@
 #include "esphome/core/defines.h"
 #include "esphome/components/uart/uart.h"
 #include "esphome/components/climate/climate.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
+#include "esphome/components/sensor/sensor.h"
+#include "esphome/components/text_sensor/text_sensor.h"
 
 namespace esphome {
 namespace tclac {
 
 #define SET_TEMP_MASK	0b00001111
+#define TURBO_BIT		0b10000000
 
 // Сколько раз повторять командный кадр за одну отправку (обход маргинальной
 // линии TX 3.3В->5В без конвертера уровней). Повторы неблокирующие и
@@ -177,6 +181,13 @@ class tclacClimate : public climate::Climate, public esphome::uart::UARTDevice, 
 		void set_supported_modes(climate::ClimateModeMask modes);
 		void set_supported_fan_modes(climate::ClimateFanModeMask fan_modes);
 		void set_supported_swing_modes(climate::ClimateSwingModeMask swing_modes);
+		void set_turbo_sensor(binary_sensor::BinarySensor *sensor) { turbo_sensor_ = sensor; }
+		void set_compressor_sensor(binary_sensor::BinarySensor *sensor) { compressor_sensor_ = sensor; }
+		void set_evap_temp_sensor(sensor::Sensor *sensor) { evap_temp_sensor_ = sensor; }
+		void set_compressor_temp_sensor(sensor::Sensor *sensor) { compressor_temp_sensor_ = sensor; }
+		void set_compressor_freq_sensor(sensor::Sensor *sensor) { compressor_freq_sensor_ = sensor; }
+		void set_voltage_sensor(sensor::Sensor *sensor) { voltage_sensor_ = sensor; }
+		void set_diag_hex_sensor(text_sensor::TextSensor *sensor) { diag_hex_sensor_ = sensor; }
 		
 	protected:
 		GPIOPin *rx_led_pin_;
@@ -190,6 +201,13 @@ class tclacClimate : public climate::Climate, public esphome::uart::UARTDevice, 
 		climate::ClimateFanModeMask supported_fan_modes_{};
 		HorizontalSwingDirection horizontal_swing_direction_;
 		climate::ClimateSwingModeMask supported_swing_modes_{};
+		binary_sensor::BinarySensor *turbo_sensor_{nullptr};
+		binary_sensor::BinarySensor *compressor_sensor_{nullptr};
+		sensor::Sensor *evap_temp_sensor_{nullptr};
+		sensor::Sensor *compressor_temp_sensor_{nullptr};
+		sensor::Sensor *compressor_freq_sensor_{nullptr};
+		sensor::Sensor *voltage_sensor_{nullptr};
+		text_sensor::TextSensor *diag_hex_sensor_{nullptr};
 		void control(const climate::ClimateCall &call) override;
 };
 }

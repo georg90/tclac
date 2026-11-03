@@ -1,7 +1,7 @@
 from esphome import automation, pins
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import climate, uart
+from esphome.components import binary_sensor, climate, sensor, text_sensor, uart
 from esphome.const import (
     CONF_ID,
     CONF_LEVEL,
@@ -24,7 +24,7 @@ from esphome.components.climate import (
     CONF_CURRENT_TEMPERATURE,
 )
 
-AUTO_LOAD = ["climate"]
+AUTO_LOAD = ["climate", "binary_sensor", "sensor", "text_sensor"]
 CODEOWNERS = ["@I-am-nightingale", "@xaxexa", "@junkfix"]
 DEPENDENCIES = ["climate", "uart"]
 
@@ -43,6 +43,13 @@ CONF_MODULE_DISPLAY = "show_module_display"
 CONF_HORIZONTAL_AIRFLOW = "horizontal_airflow"
 CONF_VERTICAL_SWING_MODE = "vertical_swing_mode"
 CONF_HORIZONTAL_SWING_MODE = "horizontal_swing_mode"
+CONF_TURBO_SENSOR = "turbo_sensor"
+CONF_COMPRESSOR_SENSOR = "compressor_running"
+CONF_EVAP_TEMP_SENSOR = "evaporator_temperature"
+CONF_COMPRESSOR_TEMP_SENSOR = "compressor_temperature"
+CONF_COMPRESSOR_FREQ_SENSOR = "compressor_frequency"
+CONF_VOLTAGE_SENSOR = "supply_voltage"
+CONF_DIAG_HEX_SENSOR = "diagnostic_hex"
 
 tclac_ns = cg.esphome_ns.namespace("tclac")
 tclacClimate = tclac_ns.class_("tclacClimate", uart.UARTDevice, climate.Climate, cg.PollingComponent)
@@ -162,6 +169,33 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_SUPPORTED_SWING_MODES,default=["OFF","VERTICAL","HORIZONTAL","BOTH",],): cv.ensure_list(cv.enum(SUPPORTED_SWING_MODES_OPTIONS, upper=True)),
             cv.Optional(CONF_SUPPORTED_MODES,default=["OFF","AUTO","COOL","HEAT","DRY","FAN_ONLY",],): cv.ensure_list(cv.enum(SUPPORTED_CLIMATE_MODES_OPTIONS, upper=True)),
             cv.Optional(CONF_SUPPORTED_FAN_MODES,default=["AUTO","QUIET","LOW","MIDDLE","MEDIUM","HIGH","FOCUS","DIFFUSE",],): cv.ensure_list(cv.enum(SUPPORTED_FAN_MODES_OPTIONS, upper=True)),
+            cv.Optional(CONF_TURBO_SENSOR): binary_sensor.binary_sensor_schema(device_class="running"),
+            cv.Optional(CONF_COMPRESSOR_SENSOR): binary_sensor.binary_sensor_schema(device_class="running"),
+            cv.Optional(CONF_EVAP_TEMP_SENSOR): sensor.sensor_schema(
+                unit_of_measurement="°C",
+                accuracy_decimals=1,
+                device_class="temperature",
+                state_class="measurement",
+            ),
+            cv.Optional(CONF_COMPRESSOR_TEMP_SENSOR): sensor.sensor_schema(
+                unit_of_measurement="°C",
+                accuracy_decimals=0,
+                device_class="temperature",
+                state_class="measurement",
+            ),
+            cv.Optional(CONF_COMPRESSOR_FREQ_SENSOR): sensor.sensor_schema(
+                unit_of_measurement="Hz",
+                accuracy_decimals=0,
+                state_class="measurement",
+                icon="mdi:sine-wave",
+            ),
+            cv.Optional(CONF_VOLTAGE_SENSOR): sensor.sensor_schema(
+                unit_of_measurement="V",
+                accuracy_decimals=0,
+                device_class="voltage",
+                state_class="measurement",
+            ),
+            cv.Optional(CONF_DIAG_HEX_SENSOR): text_sensor.text_sensor_schema(icon="mdi:chip"),
         }
     )
     .extend(uart.UART_DEVICE_SCHEMA)
@@ -348,3 +382,25 @@ def to_code(config):
         cg.add_define("CONF_RX_LED")
         rx_led_pin = yield cg.gpio_pin_expression(config[CONF_RX_LED])
         cg.add(var.set_rx_led_pin(rx_led_pin))
+
+    if CONF_TURBO_SENSOR in config:
+        turbo_sensor = yield binary_sensor.new_binary_sensor(config[CONF_TURBO_SENSOR])
+        cg.add(var.set_turbo_sensor(turbo_sensor))
+    if CONF_COMPRESSOR_SENSOR in config:
+        compressor_sensor = yield binary_sensor.new_binary_sensor(config[CONF_COMPRESSOR_SENSOR])
+        cg.add(var.set_compressor_sensor(compressor_sensor))
+    if CONF_EVAP_TEMP_SENSOR in config:
+        evap_temp_sensor = yield sensor.new_sensor(config[CONF_EVAP_TEMP_SENSOR])
+        cg.add(var.set_evap_temp_sensor(evap_temp_sensor))
+    if CONF_COMPRESSOR_TEMP_SENSOR in config:
+        compressor_temp_sensor = yield sensor.new_sensor(config[CONF_COMPRESSOR_TEMP_SENSOR])
+        cg.add(var.set_compressor_temp_sensor(compressor_temp_sensor))
+    if CONF_COMPRESSOR_FREQ_SENSOR in config:
+        compressor_freq_sensor = yield sensor.new_sensor(config[CONF_COMPRESSOR_FREQ_SENSOR])
+        cg.add(var.set_compressor_freq_sensor(compressor_freq_sensor))
+    if CONF_VOLTAGE_SENSOR in config:
+        voltage_sensor = yield sensor.new_sensor(config[CONF_VOLTAGE_SENSOR])
+        cg.add(var.set_voltage_sensor(voltage_sensor))
+    if CONF_DIAG_HEX_SENSOR in config:
+        diag_hex_sensor = yield text_sensor.new_text_sensor(config[CONF_DIAG_HEX_SENSOR])
+        cg.add(var.set_diag_hex_sensor(diag_hex_sensor))

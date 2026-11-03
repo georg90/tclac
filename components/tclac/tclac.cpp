@@ -5,6 +5,7 @@
 * Соловей с паяльником 15.03.2024
 **/
 #include <cmath>
+#include <cstdio>
 
 #include "esphome.h"
 #include "esphome/core/defines.h"
@@ -175,6 +176,8 @@ void tclacClimate::readData() {
 	current_temperature = ((float)((dataRX[17] << 8) | dataRX[18]) / 374.0f - 32.0f) / 1.8f;
 	
 	target_temperature = (dataRX[FAN_SPEED_POS] & SET_TEMP_MASK) + 16;
+	if (turbo_sensor_ != nullptr)
+		turbo_sensor_->publish_state((dataRX[7] & TURBO_BIT) != 0);
 
 	//ESP_LOGD("TCL", "TEMP: %f ", current_temperature);
 
@@ -274,6 +277,31 @@ void tclacClimate::readData() {
 		this->swing_mode = climate::CLIMATE_SWING_OFF;
 		this->preset = ClimatePreset::CLIMATE_PRESET_NONE;
 	}
+
+	if (evap_temp_sensor_ != nullptr) {
+		float evaporator_temperature = (float)((dataRX[36] << 8) | dataRX[37]) / 374.0f;
+		evaporator_temperature = (evaporator_temperature - 32.0f) / 1.8f;
+		evap_temp_sensor_->publish_state(evaporator_temperature);
+	}
+	if (compressor_temp_sensor_ != nullptr)
+		compressor_temp_sensor_->publish_state(dataRX[38] > 0 ? (float)dataRX[38] : NAN);
+	if (compressor_freq_sensor_ != nullptr)
+		compressor_freq_sensor_->publish_state(dataRX[39] > 0 ? (float)dataRX[39] : NAN);
+	if (compressor_sensor_ != nullptr)
+		compressor_sensor_->publish_state(dataRX[46] != 0);
+	if (voltage_sensor_ != nullptr)
+		voltage_sensor_->publish_state(dataRX[46] != 0 ? (float)dataRX[45] : NAN);
+	if (diag_hex_sensor_ != nullptr) {
+		char buffer[79];
+		char *position = buffer;
+		for (int index = 34; index <= 59; index++) {
+			position += std::snprintf(position, sizeof(buffer) - (position - buffer), "%02X", dataRX[index]);
+			if (index < 59) *position++ = ' ';
+		}
+		*position = '\0';
+		diag_hex_sensor_->publish_state(buffer);
+	}
+
 	// Публикуем данные
 	this->publish_state();
 	allow_take_control = true;
