@@ -51,10 +51,10 @@
 ### 3. Konfiguration einfügen
 
 #### Option A: Einfache Konfiguration
-[📄 Sample_conf.yaml](https://github.com/GITHUB_NAME/tclac/blob/master/Sample_conf.yaml)
+[📄 Sample_conf.yaml](https://github.com/georg90/tclac/blob/master/Sample_conf.yaml)
 
 #### Option B: Erweiterte Konfiguration
-[📄 TCL-Conditioner.yaml](https://github.com/GITHUB_NAME/tclac/blob/master/TCL-Conditioner.yaml)
+[📄 TCL-Conditioner.yaml](https://github.com/georg90/tclac/blob/master/TCL-Conditioner.yaml)
 
 📝 **Wichtig:**  
 - WLAN-Daten, Gerätename etc. anpassen  
@@ -103,7 +103,7 @@ Du kannst die Konfiguration modular laden:
 ```yaml
 packages:
   remote_package:
-    url: https://github.com/GITHUB_NAME/tclac.git
+    url: https://github.com/georg90/tclac.git
     ref: master
     files:
       - packages/core.yaml   # Hauptmodul
@@ -129,7 +129,7 @@ Beispiel mit 3-fachem Senden:
 ```yaml
 packages:
   remote_package:
-    url: https://github.com/GITHUB_NAME/tclac.git
+    url: https://github.com/georg90/tclac.git
     ref: master
     files:
     # v – Zeilen müssen exakt hier ausgerichtet sein

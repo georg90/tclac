@@ -5,7 +5,7 @@
 # Klimakomponente
 external_components:
   - source:
-      url: https://github.com/GITHUB_NAME/tclac.git
+      url: https://github.com/georg90/tclac.git
       type: git
       ref: master
     components: [ tclac ]

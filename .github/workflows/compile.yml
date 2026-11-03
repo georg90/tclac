@@ -13,9 +13,11 @@ jobs:
         config:
           - tests/test.esp32-ard.yaml
           - tests/test.esp32-idf.yaml
+          - tests/test.esp32dev-pakete.yaml
         esphome:
           - "2026.4.0"
           - "2026.7.3"
+          - "2026.10.2"
 
     steps:
       - name: Check out repository
@@ -28,6 +30,18 @@ jobs:
 
       - name: Install ESPHome
         run: python -m pip install "esphome==${{ matrix.esphome }}"
+
+      - name: Komponente in den Paketen auf lokalen Stand umstellen
+        run: |
+          python - <<'PY'
+          import re, pathlib
+          p = pathlib.Path("packages/core.yaml")
+          s = p.read_text()
+          s = re.sub(r"external_components:\n(?:  .*\n)+",
+                     "external_components:\n  - source:\n      type: local\n      path: ../components\n    components: [ tclac ]\n",
+                     s, count=1)
+          p.write_text(s)
+          PY
 
       - name: Compile
         run: esphome compile "${{ matrix.config }}"

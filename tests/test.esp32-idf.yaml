@@ -27,3 +27,19 @@ climate:
   - platform: tclac
     id: tclac_test_climate
     name: TCL AC Test
+
+# Aktionen in Triggern mit Argumenten (prüft die play()-Signatur in automation.h)
+select:
+  - platform: template
+    name: Aktionstest
+    optimistic: true
+    options: ["an", "aus"]
+    on_value:
+      - climate.tclac.display_on: tclac_test_climate
+      - climate.tclac.beeper_off: tclac_test_climate
+      - climate.tclac.set_vertical_airflow:
+          id: tclac_test_climate
+          vertical_airflow: CENTER
+      - climate.tclac.set_horizontal_swing_direction:
+          id: tclac_test_climate
+          horizontal_swing_mode: LEFT_RIGHT

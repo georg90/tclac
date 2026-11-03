@@ -1,0 +1,26 @@
+# Testet die YAML-Pakete so, wie sie in einer echten Konfiguration genutzt werden
+# (esp32dev, Standard-Framework). Die CI ersetzt vorher in packages/core.yaml die
+# GitHub-Quelle der Komponente durch den lokalen Ordner, damit genau dieser Stand
+# kompiliert wird.
+substitutions:
+  device_name: tclac
+  humanly_name: TCL Klimaanlage
+  wifi_ssid: test-ssid
+  wifi_password: test-passwort
+  recovery_pass: test-recovery
+  ota_pass: test-ota
+  api_key: lmUoWsWs1oqSfJqLFsA6PisHSx4Y1G+iu7V3PDIqpXk=
+  uart_rx: GPIO1
+  uart_tx: GPIO3
+  receive_led: GPIO4
+  transmit_led: GPIO5
+
+esp32:
+  board: esp32dev
+
+packages:
+  core: !include ../packages/core.yaml
+  leds: !include ../packages/leds.yaml
+  bad_connect: !include ../packages/bad_connect.yaml
+  uart_speed: !include ../packages/uart_speed.yaml
+  screen: !include ../packages/screen.yaml
