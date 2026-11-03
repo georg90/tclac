@@ -5,21 +5,28 @@
 # Klimakomponente
 external_components:
   - source:
-      url: https://github.com/I-am-nightingale/tclac.git
+      url: https://github.com/GITHUB_NAME/tclac.git
       type: git
       ref: master
     components: [ tclac ]
     refresh: 30s
 
 # ESPHome-Konfiguration
+
+substitutions:
+  boot_actions: !lambda |- # Standardmäßig keine zusätzlichen Aktionen beim Start
+
 esphome:
   name: ${device_name}
-  min_version: 2023.3.0
+  min_version: 2026.4.0
   friendly_name: ${humanly_name}
   on_boot:
     priority: -100
     then:
       lambda: !lambda |-
+      
+        ${boot_actions}
+        
         id(${device_name}climate).set_beeper_state(false);
         id(${device_name}climate).set_force_mode_state(false);
         
@@ -91,6 +98,7 @@ esphome:
         }
 
 uart:
+  id: ${device_name}_uart
   baud_rate: 9600
   data_bits: 8
   parity: EVEN

@@ -1,37 +1,30 @@
-esphome:
-  name: klimaanlage
-  friendly_name: Klimaanlage
+# Vereinfachte Beispielkonfiguration. Ausführliche Variante mit Erklärungen: TCL-Conditioner.yaml
+# Schlüssel und Passwörter gehören in die secrets.yaml von ESPHome, nicht in diese Datei.
+
+substitutions:
+  device_name: tclac
+  humanly_name: TCL Klimaanlage
+  wifi_ssid: !secret wifi_ssid
+  wifi_password: !secret wifi_password
+  recovery_pass: !secret tclac_recovery_pass
+  ota_pass: !secret tclac_ota_pass
+  api_key: !secret tclac_api_key   # neuen Schlüssel erzeugen: https://esphome.io/components/api.html
+  uart_rx: GPIO3   # RX0 des ESP32 (Standard); bei vertauschter Verkabelung GPIO1
+  uart_tx: GPIO1   # TX0 des ESP32 (Standard); bei vertauschter Verkabelung GPIO3
+  receive_led: GPIO2
+  transmit_led: GPIO2
 
 esp32:
   board: esp32dev
 
-
-# Enable logging
-logger:
-
-# Enable Home Assistant API
-api:
-  encryption:
-    key: "glXNdaZaLVlV8p2M0sYxxxxxxxx8HAhanEuRDCU="
-
-
-substitutions:
-  device_name: tclac
-  humanly_name: TCL Air Conditioner
-  wifi_ssid: !secret wifi_ssid
-  wifi_password: !secret wifi_password
-  recovery_pass: mKSzmBdt7DAj
-  ota_pass: 90cf525a594c8bb2cbf917bc2c2fa058
-  uart_rx: GPIO1
-  uart_tx: GPIO3
-  receive_led: GPIO2
-  transmit_led: GPIO2
-
 packages:
   remote_package:
-    url: https://github.com/sorz2122/tclac.git     
+    url: https://github.com/GITHUB_NAME/tclac.git
     ref: master
     files:
+    # v – Zeilen müssen exakt hier ausgerichtet sein
       - packages/core.yaml
+      # - packages/leds.yaml
+      # - packages/bad_connect.yaml
+      # - packages/uart_speed.yaml
     refresh: 30s
-    
