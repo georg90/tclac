@@ -169,3 +169,15 @@ wifi:
 - Neue Pakete `bad_connect.yaml` und `uart_speed.yaml`
 - Mindestversion ESPHome 2026.4.0
 
+### Telemetrie-Sensoren
+
+| Sensor | Type | Source byte(s) | Notes |
+|--------|------|---------------|-------|
+| `turbo_sensor` | `binary_sensor` | `dataRX[7]` bit 7 | Turbo active (set by remote or unit) |
+| `compressor_running` | `binary_sensor` | `dataRX[46]` | 0 = idle, > 0 = running |
+| `evaporator_temperature` | `sensor` | `dataRX[36–37]` | Same formula as indoor ambient ((raw/374−32)/1.8) |
+| `compressor_temperature` | `sensor` | `dataRX[38]` | Direct °C value; NaN when outdoor unit idle |
+| `compressor_frequency` | `sensor` | `dataRX[39]` | Hz; NaN when outdoor unit idle |
+| `supply_voltage` | `sensor` | `dataRX[45]` | Mains voltage in V; only valid while compressor runs |
+| `diagnostic_hex` | `text_sensor` | `dataRX[34–59]` | Raw hex dump of not-yet-decoded bytes for further research |
+
