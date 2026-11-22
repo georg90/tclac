@@ -175,7 +175,8 @@ wifi:
 |--------|------|---------------|-------|
 | `turbo_sensor` | `binary_sensor` | `dataRX[7]` bit 7 | Turbo active (set by remote or unit) |
 | `compressor_running` | `binary_sensor` | `dataRX[46]` | 0 = idle, > 0 = running |
-| `evaporator_temperature` | `sensor` | `dataRX[36–37]` | Same formula as indoor ambient ((raw/374−32)/1.8) |
+| `evaporator_temperature` | `sensor` | `dataRX[36]` | Outdoor coil (evaporator in heating mode): `dataRX[36] − 20` °C, 1 K steps (0 = −20 °C). Earlier versions wrongly combined bytes 36–37 as `(raw/374−32)/1.8` (0.38 K steps, wrong slope and offset) |
+| `byte37_temperature` | `sensor` | `dataRX[37]` | Raw byte; rises with compressor load (~73 at 400 W, ~100 at 700 W) and cools slowly after stop – probably discharge/compressor temperature, offset not confirmed |
 | `compressor_temperature` | `sensor` | `dataRX[38]` | Direct °C value; NaN when outdoor unit idle |
 | `compressor_frequency` | `sensor` | `dataRX[39]` | Hz; NaN when outdoor unit idle |
 | `supply_voltage` | `sensor` | `dataRX[45]` | Mains voltage in V; only valid while compressor runs |

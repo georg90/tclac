@@ -184,6 +184,7 @@ class tclacClimate : public climate::Climate, public esphome::uart::UARTDevice, 
 		void set_turbo_sensor(binary_sensor::BinarySensor *sensor) { turbo_sensor_ = sensor; }
 		void set_compressor_sensor(binary_sensor::BinarySensor *sensor) { compressor_sensor_ = sensor; }
 		void set_evap_temp_sensor(sensor::Sensor *sensor) { evap_temp_sensor_ = sensor; }
+		void set_byte37_temp_sensor(sensor::Sensor *sensor) { byte37_temp_sensor_ = sensor; }
 		void set_compressor_temp_sensor(sensor::Sensor *sensor) { compressor_temp_sensor_ = sensor; }
 		void set_compressor_freq_sensor(sensor::Sensor *sensor) { compressor_freq_sensor_ = sensor; }
 		void set_voltage_sensor(sensor::Sensor *sensor) { voltage_sensor_ = sensor; }
@@ -204,6 +205,7 @@ class tclacClimate : public climate::Climate, public esphome::uart::UARTDevice, 
 		binary_sensor::BinarySensor *turbo_sensor_{nullptr};
 		binary_sensor::BinarySensor *compressor_sensor_{nullptr};
 		sensor::Sensor *evap_temp_sensor_{nullptr};
+		sensor::Sensor *byte37_temp_sensor_{nullptr};
 		sensor::Sensor *compressor_temp_sensor_{nullptr};
 		sensor::Sensor *compressor_freq_sensor_{nullptr};
 		sensor::Sensor *voltage_sensor_{nullptr};

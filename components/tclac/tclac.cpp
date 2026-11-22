@@ -278,11 +278,17 @@ void tclacClimate::readData() {
 		this->preset = ClimatePreset::CLIMATE_PRESET_NONE;
 	}
 
-	if (evap_temp_sensor_ != nullptr) {
-		float evaporator_temperature = (float)((dataRX[36] << 8) | dataRX[37]) / 374.0f;
-		evaporator_temperature = (evaporator_temperature - 32.0f) / 1.8f;
-		evap_temp_sensor_->publish_state(evaporator_temperature);
-	}
+	// Byte 36: Temperatur am Aussenregister (im Heizbetrieb der Verdampfer),
+	// 1 K je Stufe, Versatz 20 (0 = -20 °C). Byte 37 ist ein eigener Wert und
+	// gehoert NICHT als Low-Byte dazu (frueher (b36<<8|b37)/374 -> Stufe 0,38 K,
+	// falscher Faktor und Versatz). Belegt im Stillstand: b36 - 20 = Aussenluft.
+	if (evap_temp_sensor_ != nullptr)
+		evap_temp_sensor_->publish_state((float)dataRX[36] - 20.0f);
+	// Byte 37: steigt mit der Verdichterleistung (~73 bei 400 W, ~100 bei 700 W)
+	// und kuehlt nach dem Stopp langsam ab -> vermutlich Heissgas-/Verdichter-
+	// temperatur. Veroeffentlicht als Rohwert, Versatz noch nicht bestaetigt.
+	if (byte37_temp_sensor_ != nullptr)
+		byte37_temp_sensor_->publish_state((float)dataRX[37]);
 	if (compressor_temp_sensor_ != nullptr)
 		compressor_temp_sensor_->publish_state(dataRX[38] > 0 ? (float)dataRX[38] : NAN);
 	if (compressor_freq_sensor_ != nullptr)

@@ -33,6 +33,8 @@ climate:
       name: TCL AC Test Compressor
     evaporator_temperature:
       name: TCL AC Test Evaporator Temperature
+    byte37_temperature:
+      name: TCL AC Test Byte37 Temperature
     compressor_temperature:
       name: TCL AC Test Compressor Temperature
     compressor_frequency:

@@ -326,6 +326,10 @@ climate:
       name: "${humanly_name} Verdampfertemperatur"
       disabled_by_default: true
       entity_category: diagnostic
+    byte37_temperature:
+      name: "${humanly_name} Heissgastemperatur (Byte 37, vermutet)"
+      disabled_by_default: true
+      entity_category: diagnostic
     compressor_temperature:
       name: "${humanly_name} Kompressortemperatur"
       disabled_by_default: true

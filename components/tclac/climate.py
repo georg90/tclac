@@ -46,6 +46,7 @@ CONF_HORIZONTAL_SWING_MODE = "horizontal_swing_mode"
 CONF_TURBO_SENSOR = "turbo_sensor"
 CONF_COMPRESSOR_SENSOR = "compressor_running"
 CONF_EVAP_TEMP_SENSOR = "evaporator_temperature"
+CONF_BYTE37_TEMP_SENSOR = "byte37_temperature"
 CONF_COMPRESSOR_TEMP_SENSOR = "compressor_temperature"
 CONF_COMPRESSOR_FREQ_SENSOR = "compressor_frequency"
 CONF_VOLTAGE_SENSOR = "supply_voltage"
@@ -173,7 +174,13 @@ CONFIG_SCHEMA = cv.All(
             cv.Optional(CONF_COMPRESSOR_SENSOR): binary_sensor.binary_sensor_schema(device_class="running"),
             cv.Optional(CONF_EVAP_TEMP_SENSOR): sensor.sensor_schema(
                 unit_of_measurement="°C",
-                accuracy_decimals=1,
+                accuracy_decimals=0,
+                device_class="temperature",
+                state_class="measurement",
+            ),
+            cv.Optional(CONF_BYTE37_TEMP_SENSOR): sensor.sensor_schema(
+                unit_of_measurement="°C",
+                accuracy_decimals=0,
                 device_class="temperature",
                 state_class="measurement",
             ),
@@ -392,6 +399,9 @@ def to_code(config):
     if CONF_EVAP_TEMP_SENSOR in config:
         evap_temp_sensor = yield sensor.new_sensor(config[CONF_EVAP_TEMP_SENSOR])
         cg.add(var.set_evap_temp_sensor(evap_temp_sensor))
+    if CONF_BYTE37_TEMP_SENSOR in config:
+        byte37_temp_sensor = yield sensor.new_sensor(config[CONF_BYTE37_TEMP_SENSOR])
+        cg.add(var.set_byte37_temp_sensor(byte37_temp_sensor))
     if CONF_COMPRESSOR_TEMP_SENSOR in config:
         compressor_temp_sensor = yield sensor.new_sensor(config[CONF_COMPRESSOR_TEMP_SENSOR])
         cg.add(var.set_compressor_temp_sensor(compressor_temp_sensor))
