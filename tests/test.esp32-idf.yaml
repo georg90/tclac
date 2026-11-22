@@ -62,6 +62,9 @@ select:
     on_value:
       - climate.tclac.display_on: tclac_test_climate
       - climate.tclac.beeper_off: tclac_test_climate
+      - climate.tclac.module_display_off:
+          id: tclac_test_climate
+      - climate.tclac.force_mode_on: tclac_test_climate
       - climate.tclac.set_vertical_airflow:
           id: tclac_test_climate
           vertical_airflow: CENTER

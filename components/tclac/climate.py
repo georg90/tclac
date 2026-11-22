@@ -258,10 +258,10 @@ TCLAC_ACTION_BASE_SCHEMA = automation.maybe_simple_id({cv.GenerateID(CONF_ID): c
 
 # Регистрация событий включения и отключения дисплея кондиционера
 @automation.register_action(
-    "climate.tclac.display_on", DisplayOnAction, cv.Schema, synchronous=True
+    "climate.tclac.display_on", DisplayOnAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 @automation.register_action(
-    "climate.tclac.display_off", DisplayOffAction, cv.Schema, synchronous=True
+    "climate.tclac.display_off", DisplayOffAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 async def display_action_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
@@ -270,10 +270,10 @@ async def display_action_to_code(config, action_id, template_arg, args):
 
 # Регистрация событий включения и отключения пищалки кондиционера
 @automation.register_action(
-    "climate.tclac.beeper_on", BeeperOnAction, cv.Schema, synchronous=True
+    "climate.tclac.beeper_on", BeeperOnAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 @automation.register_action(
-    "climate.tclac.beeper_off", BeeperOffAction, cv.Schema, synchronous=True
+    "climate.tclac.beeper_off", BeeperOffAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 async def beeper_action_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
@@ -282,10 +282,10 @@ async def beeper_action_to_code(config, action_id, template_arg, args):
 
 # Регистрация событий включения и отключения светодиодов связи модуля
 @automation.register_action(
-    "climate.tclac.module_display_on", ModuleDisplayOnAction, cv.Schema, synchronous=True
+    "climate.tclac.module_display_on", ModuleDisplayOnAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 @automation.register_action(
-    "climate.tclac.module_display_off", ModuleDisplayOffAction, cv.Schema, synchronous=True
+    "climate.tclac.module_display_off", ModuleDisplayOffAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 async def module_display_action_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
@@ -294,10 +294,10 @@ async def module_display_action_to_code(config, action_id, template_arg, args):
     
 # Регистрация событий включения и отключения принудительного применения настроек
 @automation.register_action(
-    "climate.tclac.force_mode_on", ForceOnAction, cv.Schema, synchronous=True
+    "climate.tclac.force_mode_on", ForceOnAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 @automation.register_action(
-    "climate.tclac.force_mode_off", ForceOffAction, cv.Schema, synchronous=True
+    "climate.tclac.force_mode_off", ForceOffAction, TCLAC_ACTION_BASE_SCHEMA, synchronous=True
 )
 async def force_mode_action_to_code(config, action_id, template_arg, args):
     paren = await cg.get_variable(config[CONF_ID])
