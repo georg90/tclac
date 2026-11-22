@@ -68,6 +68,12 @@ select:
       - climate.tclac.set_vertical_airflow:
           id: tclac_test_climate
           vertical_airflow: CENTER
+      - climate.tclac.set_horizontal_airflow:
+          id: tclac_test_climate
+          horizontal_airflow: CENTER
+      - climate.tclac.set_vertical_swing_direction:
+          id: tclac_test_climate
+          vertical_swing_mode: UP_DOWN
       - climate.tclac.set_horizontal_swing_direction:
           id: tclac_test_climate
           horizontal_swing_mode: LEFT_RIGHT
