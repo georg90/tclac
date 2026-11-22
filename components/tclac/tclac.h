@@ -9,6 +9,8 @@
 #define TCL_ESP_TCL_H
 
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "esphome.h"
 #include "esphome/core/defines.h"
@@ -184,8 +186,11 @@ class tclacClimate : public climate::Climate, public esphome::uart::UARTDevice, 
 		void set_turbo_sensor(binary_sensor::BinarySensor *sensor) { turbo_sensor_ = sensor; }
 		void set_compressor_sensor(binary_sensor::BinarySensor *sensor) { compressor_sensor_ = sensor; }
 		void set_evap_temp_sensor(sensor::Sensor *sensor) { evap_temp_sensor_ = sensor; }
-		void set_byte37_temp_sensor(sensor::Sensor *sensor) { byte37_temp_sensor_ = sensor; }
-		void set_compressor_temp_sensor(sensor::Sensor *sensor) { compressor_temp_sensor_ = sensor; }
+		void set_indoor_coil_temp_sensor(sensor::Sensor *sensor) { indoor_coil_temp_sensor_ = sensor; }
+		void set_outdoor_temp_sensor(sensor::Sensor *sensor) { outdoor_temp_sensor_ = sensor; }
+		void set_discharge_temp_sensor(sensor::Sensor *sensor) { discharge_temp_sensor_ = sensor; }
+		void set_outdoor_fan_sensor(sensor::Sensor *sensor) { outdoor_fan_sensor_ = sensor; }
+		void add_raw_byte_sensor(uint8_t index, sensor::Sensor *sensor) { raw_byte_sensors_.emplace_back(index, sensor); }
 		void set_compressor_freq_sensor(sensor::Sensor *sensor) { compressor_freq_sensor_ = sensor; }
 		void set_voltage_sensor(sensor::Sensor *sensor) { voltage_sensor_ = sensor; }
 		void set_diag_hex_sensor(text_sensor::TextSensor *sensor) { diag_hex_sensor_ = sensor; }
@@ -205,8 +210,11 @@ class tclacClimate : public climate::Climate, public esphome::uart::UARTDevice, 
 		binary_sensor::BinarySensor *turbo_sensor_{nullptr};
 		binary_sensor::BinarySensor *compressor_sensor_{nullptr};
 		sensor::Sensor *evap_temp_sensor_{nullptr};
-		sensor::Sensor *byte37_temp_sensor_{nullptr};
-		sensor::Sensor *compressor_temp_sensor_{nullptr};
+		sensor::Sensor *indoor_coil_temp_sensor_{nullptr};
+		sensor::Sensor *outdoor_temp_sensor_{nullptr};
+		sensor::Sensor *discharge_temp_sensor_{nullptr};
+		sensor::Sensor *outdoor_fan_sensor_{nullptr};
+		std::vector<std::pair<uint8_t, sensor::Sensor *>> raw_byte_sensors_;
 		sensor::Sensor *compressor_freq_sensor_{nullptr};
 		sensor::Sensor *voltage_sensor_{nullptr};
 		text_sensor::TextSensor *diag_hex_sensor_{nullptr};

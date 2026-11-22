@@ -175,10 +175,38 @@ wifi:
 |--------|------|---------------|-------|
 | `turbo_sensor` | `binary_sensor` | `dataRX[7]` bit 7 | Turbo active (set by remote or unit) |
 | `compressor_running` | `binary_sensor` | `dataRX[46]` | 0 = idle, > 0 = running |
-| `evaporator_temperature` | `sensor` | `dataRX[36]` | Outdoor coil (evaporator in heating mode): `dataRX[36] − 20` °C, 1 K steps (0 = −20 °C). Earlier versions wrongly combined bytes 36–37 as `(raw/374−32)/1.8` (0.38 K steps, wrong slope and offset) |
-| `byte37_temperature` | `sensor` | `dataRX[37]` | Raw byte; rises with compressor load (~73 at 400 W, ~100 at 700 W) and cools slowly after stop – probably discharge/compressor temperature, offset not confirmed |
-| `compressor_temperature` | `sensor` | `dataRX[38]` | Direct °C value; NaN when outdoor unit idle |
-| `compressor_frequency` | `sensor` | `dataRX[39]` | Hz; NaN when outdoor unit idle |
+| `indoor_coil_temperature` | `sensor` | `dataRX[30]` | Indoor coil (T2): `(dataRX[30]·4 − 200) / 10` °C, 0.4 K steps |
+| `outdoor_temperature` | `sensor` | `dataRX[35]` | Outdoor ambient at the outdoor unit (T4): `dataRX[35] − 20` °C; NaN when 0 |
+| `evaporator_temperature` | `sensor` | `dataRX[36]` | Outdoor coil (T3/OPT, evaporator in heating mode): `dataRX[36] − 20` °C, 1 K steps (0 = −20 °C, lower limit). Versions before c10e294 wrongly combined bytes 36–37 as `(raw/374−32)/1.8` |
+| `discharge_temperature` | `sensor` | `dataRX[37]` | Compressor discharge (Tp/ODT): `dataRX[37] − 20` °C; NaN when 0 |
+| `outdoor_fan_speed` | `sensor` | `dataRX[38]` | Outdoor fan, raw value (≈ rpm/10?), 0 = off (standstill and during defrost). Previously mislabelled as `compressor_temperature` |
+| `compressor_frequency` | `sensor` | `dataRX[39]` | Hz; 0 = compressor stopped |
 | `supply_voltage` | `sensor` | `dataRX[45]` | Mains voltage in V; only valid while compressor runs |
 | `diagnostic_hex` | `text_sensor` | `dataRX[34–59]` | Raw hex dump of not-yet-decoded bytes for further research |
+| `raw_bytes` | list of `sensor` | any `dataRX[n]` | Publishes the raw value of any frame byte (`byte: n`, counted from 0xBB) – for decoding further fields, e.g. byte 40 (EEV?) or 46 (current?) |
+
+Room temperature (`current_temperature`) now uses the formula of the original TCL Wi-Fi module: `(dataRX[17]·4 + ((dataRX[18] >> 2) & 3) − 200) / 10` °C (0.1 K steps). The former `((b17<<8|b18)/374 − 32)/1.8` was an approximation (error up to ~0.7 K away from 20 °C).
+
+**Breaking changes:** `compressor_temperature` was removed (byte 38 is the outdoor fan → `outdoor_fan_speed`), `byte37_temperature` was renamed to `discharge_temperature` (now with offset −20). ESPHome reports both old keys with a hint.
+
+#### Status frame byte map (61-byte frame, index 0 = 0xBB)
+
+| Byte | Meaning | Formula / note | Confidence |
+|---|---|---|---|
+| 17–18 | room temperature | see above | high (original module firmware) |
+| 30 | indoor coil T2 | `(b·4 − 200)/10` | medium |
+| 34 | indoor fan? | raw | low |
+| 35 | outdoor ambient T4 | `b − 20` | high |
+| 36 | outdoor coil T3/OPT | `b − 20` | very high (verified at standstill against an outdoor sensor: 0.0 K median) |
+| 37 | discharge Tp | `b − 20` | high (meaning), medium (offset) |
+| 38 | outdoor fan | raw, 0 = off | high |
+| 39 | compressor frequency | Hz | very high |
+| 40 | EEV opening? | raw | low |
+| 41–44 | error bits | – | medium |
+| 45 | mains voltage | V | very high |
+| 46 | outdoor current? / compressor active | raw | low |
+| 51 / 52 | vertical / horizontal louver | bits 0–2 position, 3–5 range | high |
+| 55 | low nibble + 16 = "constant temperature" | – | medium |
+
+Sources: own measurements (14 days of InfluxDB data vs. an independent outdoor sensor) and community reverse engineering: [kralonur/tcl-ac-original-module-esphome](https://github.com/kralonur/tcl-ac-original-module-esphome) (original TCL WL6U module firmware), [adaasch/AC-hack](https://github.com/adaasch/AC-hack), [E-t0m/esphome-local-ac-control](https://github.com/E-t0m/esphome-local-ac-control), TCL inverter service manual (defrost: outdoor fan off during defrost).
 

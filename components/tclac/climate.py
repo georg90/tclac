@@ -46,6 +46,13 @@ CONF_HORIZONTAL_SWING_MODE = "horizontal_swing_mode"
 CONF_TURBO_SENSOR = "turbo_sensor"
 CONF_COMPRESSOR_SENSOR = "compressor_running"
 CONF_EVAP_TEMP_SENSOR = "evaporator_temperature"
+CONF_INDOOR_COIL_TEMP_SENSOR = "indoor_coil_temperature"
+CONF_OUTDOOR_TEMP_SENSOR = "outdoor_temperature"
+CONF_DISCHARGE_TEMP_SENSOR = "discharge_temperature"
+CONF_OUTDOOR_FAN_SENSOR = "outdoor_fan_speed"
+CONF_RAW_BYTES = "raw_bytes"
+CONF_BYTE = "byte"
+# entfernte Optionen (mit Hinweis statt stillem Ignorieren)
 CONF_BYTE37_TEMP_SENSOR = "byte37_temperature"
 CONF_COMPRESSOR_TEMP_SENSOR = "compressor_temperature"
 CONF_COMPRESSOR_FREQ_SENSOR = "compressor_frequency"
@@ -178,17 +185,41 @@ CONFIG_SCHEMA = cv.All(
                 device_class="temperature",
                 state_class="measurement",
             ),
-            cv.Optional(CONF_BYTE37_TEMP_SENSOR): sensor.sensor_schema(
+            cv.Optional(CONF_INDOOR_COIL_TEMP_SENSOR): sensor.sensor_schema(
+                unit_of_measurement="°C",
+                accuracy_decimals=1,
+                device_class="temperature",
+                state_class="measurement",
+            ),
+            cv.Optional(CONF_OUTDOOR_TEMP_SENSOR): sensor.sensor_schema(
                 unit_of_measurement="°C",
                 accuracy_decimals=0,
                 device_class="temperature",
                 state_class="measurement",
             ),
-            cv.Optional(CONF_COMPRESSOR_TEMP_SENSOR): sensor.sensor_schema(
+            cv.Optional(CONF_DISCHARGE_TEMP_SENSOR): sensor.sensor_schema(
                 unit_of_measurement="°C",
                 accuracy_decimals=0,
                 device_class="temperature",
                 state_class="measurement",
+            ),
+            cv.Optional(CONF_OUTDOOR_FAN_SENSOR): sensor.sensor_schema(
+                accuracy_decimals=0,
+                state_class="measurement",
+                icon="mdi:fan",
+            ),
+            cv.Optional(CONF_RAW_BYTES): cv.ensure_list(
+                sensor.sensor_schema(
+                    accuracy_decimals=0,
+                    state_class="measurement",
+                    icon="mdi:numeric",
+                ).extend({cv.Required(CONF_BYTE): cv.int_range(min=0, max=67)})
+            ),
+            cv.Optional(CONF_BYTE37_TEMP_SENSOR): cv.invalid(
+                "byte37_temperature wurde in discharge_temperature umbenannt (jetzt mit Versatz -20 °C)"
+            ),
+            cv.Optional(CONF_COMPRESSOR_TEMP_SENSOR): cv.invalid(
+                "compressor_temperature entfernt: Byte 38 ist der Aussenluefter, siehe outdoor_fan_speed"
             ),
             cv.Optional(CONF_COMPRESSOR_FREQ_SENSOR): sensor.sensor_schema(
                 unit_of_measurement="Hz",
@@ -399,12 +430,21 @@ def to_code(config):
     if CONF_EVAP_TEMP_SENSOR in config:
         evap_temp_sensor = yield sensor.new_sensor(config[CONF_EVAP_TEMP_SENSOR])
         cg.add(var.set_evap_temp_sensor(evap_temp_sensor))
-    if CONF_BYTE37_TEMP_SENSOR in config:
-        byte37_temp_sensor = yield sensor.new_sensor(config[CONF_BYTE37_TEMP_SENSOR])
-        cg.add(var.set_byte37_temp_sensor(byte37_temp_sensor))
-    if CONF_COMPRESSOR_TEMP_SENSOR in config:
-        compressor_temp_sensor = yield sensor.new_sensor(config[CONF_COMPRESSOR_TEMP_SENSOR])
-        cg.add(var.set_compressor_temp_sensor(compressor_temp_sensor))
+    if CONF_INDOOR_COIL_TEMP_SENSOR in config:
+        indoor_coil_temp_sensor = yield sensor.new_sensor(config[CONF_INDOOR_COIL_TEMP_SENSOR])
+        cg.add(var.set_indoor_coil_temp_sensor(indoor_coil_temp_sensor))
+    if CONF_OUTDOOR_TEMP_SENSOR in config:
+        outdoor_temp_sensor = yield sensor.new_sensor(config[CONF_OUTDOOR_TEMP_SENSOR])
+        cg.add(var.set_outdoor_temp_sensor(outdoor_temp_sensor))
+    if CONF_DISCHARGE_TEMP_SENSOR in config:
+        discharge_temp_sensor = yield sensor.new_sensor(config[CONF_DISCHARGE_TEMP_SENSOR])
+        cg.add(var.set_discharge_temp_sensor(discharge_temp_sensor))
+    if CONF_OUTDOOR_FAN_SENSOR in config:
+        outdoor_fan_sensor = yield sensor.new_sensor(config[CONF_OUTDOOR_FAN_SENSOR])
+        cg.add(var.set_outdoor_fan_sensor(outdoor_fan_sensor))
+    for raw_conf in config.get(CONF_RAW_BYTES, []):
+        raw_sensor = yield sensor.new_sensor(raw_conf)
+        cg.add(var.add_raw_byte_sensor(raw_conf[CONF_BYTE], raw_sensor))
     if CONF_COMPRESSOR_FREQ_SENSOR in config:
         compressor_freq_sensor = yield sensor.new_sensor(config[CONF_COMPRESSOR_FREQ_SENSOR])
         cg.add(var.set_compressor_freq_sensor(compressor_freq_sensor))

@@ -326,14 +326,35 @@ climate:
       name: "${humanly_name} Verdampfertemperatur"
       disabled_by_default: true
       entity_category: diagnostic
-    byte37_temperature:
-      name: "${humanly_name} Heissgastemperatur (Byte 37, vermutet)"
-      disabled_by_default: true
+    indoor_coil_temperature:
+      name: "${humanly_name} Innenregister"
       entity_category: diagnostic
-    compressor_temperature:
-      name: "${humanly_name} Kompressortemperatur"
-      disabled_by_default: true
+    outdoor_temperature:
+      name: "${humanly_name} Außentemperatur Gerät"
       entity_category: diagnostic
+    discharge_temperature:
+      name: "${humanly_name} Heißgastemperatur"
+      entity_category: diagnostic
+    outdoor_fan_speed:
+      name: "${humanly_name} Außenlüfter"
+      entity_category: diagnostic
+    raw_bytes:
+      - byte: 34
+        name: "${humanly_name} Byte 34 (Innenlüfter?)"
+        disabled_by_default: true
+        entity_category: diagnostic
+      - byte: 40
+        name: "${humanly_name} Byte 40 (Expansionsventil?)"
+        disabled_by_default: true
+        entity_category: diagnostic
+      - byte: 46
+        name: "${humanly_name} Byte 46 (Strom?)"
+        disabled_by_default: true
+        entity_category: diagnostic
+      - byte: 49
+        name: "${humanly_name} Byte 49"
+        disabled_by_default: true
+        entity_category: diagnostic
     compressor_frequency:
       name: "${humanly_name} Kompressorfrequenz"
       disabled_by_default: true

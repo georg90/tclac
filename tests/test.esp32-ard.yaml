@@ -33,10 +33,19 @@ climate:
       name: TCL AC Test Compressor
     evaporator_temperature:
       name: TCL AC Test Evaporator Temperature
-    byte37_temperature:
-      name: TCL AC Test Byte37 Temperature
-    compressor_temperature:
-      name: TCL AC Test Compressor Temperature
+    indoor_coil_temperature:
+      name: TCL AC Test Indoor Coil Temperature
+    outdoor_temperature:
+      name: TCL AC Test Outdoor Temperature
+    discharge_temperature:
+      name: TCL AC Test Discharge Temperature
+    outdoor_fan_speed:
+      name: TCL AC Test Outdoor Fan
+    raw_bytes:
+      - byte: 40
+        name: TCL AC Test Byte 40
+      - byte: 46
+        name: TCL AC Test Byte 46
     compressor_frequency:
       name: TCL AC Test Compressor Frequency
     supply_voltage:

@@ -172,8 +172,14 @@ void tclacClimate::update() {
 
 void tclacClimate::readData() {
 	
-	// Эту конструкцию предложила нейронка Claude, я вообще не понимаю таких изысков, так что вставляю как есть.
-	current_temperature = ((float)((dataRX[17] << 8) | dataRX[18]) / 374.0f - 32.0f) / 1.8f;
+	// Raumtemperatur wie in der Original-Firmware des TCL-WLAN-Moduls:
+	// 10-Bit-Wert aus Byte 17 (obere 8 Bit) und Byte 18 Bit 2-3, 0,1 K je Stufe, Versatz 20 °C.
+	// Die fruehere Formel ((b17<<8|b18)/374-32)/1,8 war nur eine Naeherung (Fehler bis ~0,7 K
+	// fern von 20 °C) und nahm die uebrigen Bits von Byte 18 mit.
+	{
+		const int raw = ((int)dataRX[17] << 2) | ((dataRX[18] >> 2) & 0x03);
+		current_temperature = (float)(raw - 200) / 10.0f;
+	}
 	
 	target_temperature = (dataRX[FAN_SPEED_POS] & SET_TEMP_MASK) + 16;
 	if (turbo_sensor_ != nullptr)
@@ -278,21 +284,31 @@ void tclacClimate::readData() {
 		this->preset = ClimatePreset::CLIMATE_PRESET_NONE;
 	}
 
-	// Byte 36: Temperatur am Aussenregister (im Heizbetrieb der Verdampfer),
-	// 1 K je Stufe, Versatz 20 (0 = -20 °C). Byte 37 ist ein eigener Wert und
-	// gehoert NICHT als Low-Byte dazu (frueher (b36<<8|b37)/374 -> Stufe 0,38 K,
-	// falscher Faktor und Versatz). Belegt im Stillstand: b36 - 20 = Aussenluft.
+	// ---- Telemetrie Innen-/Aussengeraet -------------------------------------
+	// Bytes ab 0xBB gezaehlt (andere Projekte nutzen oft P[i] = Byte i+5).
+	// TCL kodiert Temperaturen durchgaengig mit Versatz 20 °C (Rohwert 0 = -20 °C).
+	// Byte 30: Innenregister (T2), 0,4 K je Stufe.
+	if (indoor_coil_temp_sensor_ != nullptr)
+		indoor_coil_temp_sensor_->publish_state(((float)dataRX[30] * 4.0f - 200.0f) / 10.0f);
+	// Byte 35: Aussenluft (T4) am Aussengeraet, 1 K je Stufe. 0 = kein Wert.
+	if (outdoor_temp_sensor_ != nullptr)
+		outdoor_temp_sensor_->publish_state(dataRX[35] > 0 ? (float)dataRX[35] - 20.0f : NAN);
+	// Byte 36: Aussenregister (T3/OPT, im Heizbetrieb der Verdampfer), 1 K je Stufe.
+	// Byte 37 gehoert NICHT als Low-Byte dazu (frueher (b36<<8|b37)/374 -> 0,38-K-Stufen,
+	// falscher Faktor und Versatz). Im Stillstand gilt b36 - 20 = Aussenluft.
 	if (evap_temp_sensor_ != nullptr)
 		evap_temp_sensor_->publish_state((float)dataRX[36] - 20.0f);
-	// Byte 37: steigt mit der Verdichterleistung (~73 bei 400 W, ~100 bei 700 W)
-	// und kuehlt nach dem Stopp langsam ab -> vermutlich Heissgas-/Verdichter-
-	// temperatur. Veroeffentlicht als Rohwert, Versatz noch nicht bestaetigt.
-	if (byte37_temp_sensor_ != nullptr)
-		byte37_temp_sensor_->publish_state((float)dataRX[37]);
-	if (compressor_temp_sensor_ != nullptr)
-		compressor_temp_sensor_->publish_state(dataRX[38] > 0 ? (float)dataRX[38] : NAN);
+	// Byte 37: Heissgastemperatur (Tp/ODT), 1 K je Stufe. 0 = kein Wert.
+	// Nach langem Stillstand gilt b37 - 20 = Aussenluft (+0,5 K).
+	if (discharge_temp_sensor_ != nullptr)
+		discharge_temp_sensor_->publish_state(dataRX[37] > 0 ? (float)dataRX[37] - 20.0f : NAN);
+	// Byte 38: Aussenluefter (Rohwert, 0 = aus). Kein Temperaturwert: 0 im Stillstand
+	// und waehrend des Abtauens, nach dem Abtauen Hochlauf von ~6 auf ~82 in 45 s.
+	if (outdoor_fan_sensor_ != nullptr)
+		outdoor_fan_sensor_->publish_state((float)dataRX[38]);
+	// Byte 39: Verdichterfrequenz in Hz, 0 = Verdichter aus.
 	if (compressor_freq_sensor_ != nullptr)
-		compressor_freq_sensor_->publish_state(dataRX[39] > 0 ? (float)dataRX[39] : NAN);
+		compressor_freq_sensor_->publish_state((float)dataRX[39]);
 	if (compressor_sensor_ != nullptr)
 		compressor_sensor_->publish_state(dataRX[46] != 0);
 	if (voltage_sensor_ != nullptr)
@@ -306,6 +322,13 @@ void tclacClimate::readData() {
 		}
 		*position = '\0';
 		diag_hex_sensor_->publish_state(buffer);
+	}
+	// Frei konfigurierbare Rohbytes (raw_bytes) fuer noch nicht entschluesselte Werte.
+	{
+		const uint8_t frame_len = dataRX[4] + 6;
+		for (auto &raw : raw_byte_sensors_)
+			if (raw.first < frame_len)
+				raw.second->publish_state((float)dataRX[raw.first]);
 	}
 
 	// Публикуем данные
